@@ -10,7 +10,7 @@
 
 void *void_unpack_var(void *buff, size_t index)
 {
-	size_t ii;
+	register size_t ii;
 	size_t offset = 0;
 	char *format;
 	const size_t offset_table[256] = { 
