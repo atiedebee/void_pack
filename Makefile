@@ -13,7 +13,11 @@ default:
 	@printf '\e[1;34mmake clean  - remove all binaries\e[0;37m\n'
 	@printf '\e[1;34mmake obj    - get a .o file for linking\e[0;37m\n'
 
-.PHONY: clean static shared obj
+.PHONY: clean static shared obj test
+
+test:
+	$(CC) $(FLAGS) $(SRC)
+
 
 obj:
 	$(CC) $(FLAGS) $(SRC) -c -o $(addprefix lib/, $(OBJ))

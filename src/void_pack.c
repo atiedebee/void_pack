@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +8,6 @@
 #pragma GCC diagnostic ignored "-Wpointer-arith"
 #pragma GCC diagnostic push
 
-
 void *void_unpack_var(void *buff, size_t index)
 {
 	register size_t ii;
@@ -18,24 +16,24 @@ void *void_unpack_var(void *buff, size_t index)
 	size_t sizeof_table[256] = {0};
 	size_t alignof_table[256] = {0};
 	
-	sizeof_table['c'] = sizeof(char);
-	sizeof_table['s'] = sizeof(short);
-	sizeof_table['i'] = sizeof(int);
-	sizeof_table['l'] = sizeof(long);
-	sizeof_table['p'] = sizeof(void*);
-	sizeof_table['f'] = sizeof(double);
-	sizeof_table['d'] = sizeof(double);
-	sizeof_table['D'] = sizeof(long double);
+	sizeof_table['c'] = 		sizeof(char);
+	sizeof_table['s'] = 		sizeof(short);
+	sizeof_table['i'] = 		sizeof(int);
+	sizeof_table['l'] = 		sizeof(long);
+	sizeof_table['f'] = 		sizeof(double);
+	sizeof_table['d'] = 		sizeof(double);
+	sizeof_table['D'] = 		sizeof(long double);
+	sizeof_table['p'] =			sizeof(void*);
 	
-	alignof_table['c'] = alignof(char);
-	alignof_table['s'] = alignof(short);
-	alignof_table['i'] = alignof(int);
-	alignof_table['l'] = alignof(long);
-	alignof_table['p'] = alignof(void*);
-	alignof_table['f'] = alignof(double);
-	alignof_table['d'] = alignof(double);
-	alignof_table['D'] = alignof(long double);
 	
+	alignof_table['c'] = 		alignof(char);
+	alignof_table['s'] = 		alignof(short);
+	alignof_table['i'] = 		alignof(int);
+	alignof_table['l'] = 		alignof(long);
+	alignof_table['f'] = 		alignof(double);
+	alignof_table['d'] = 		alignof(double);
+	alignof_table['D'] = 		alignof(long double);
+	alignof_table['p'] =		alignof(void*);
 	
 	if( buff == NULL )
 	{
