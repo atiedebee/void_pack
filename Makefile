@@ -12,7 +12,7 @@ default:
 	@printf '\e[1;34mmake shared - create a dynamically linked object file\n'
 	@printf '\e[1;34mmake clean  - remove all binaries\e[0;37m\n'
 
-.PHONY: clean static shared test
+.PHONY: clean static shared
 
 static: lib
 	$(CC) $(FLAGS) $(SRC) -c -o $(OBJ)
