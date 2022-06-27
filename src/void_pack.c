@@ -42,7 +42,7 @@ void *void_unpack_var(void *buff, size_t index)
 		return NULL;
 	}
 	
-	format = buff;
+	format = (char*)buff;
 	while( *(char*)buff != '\0')
 	{
 		buff += sizeof(char);
@@ -51,7 +51,7 @@ void *void_unpack_var(void *buff, size_t index)
 
 #pragma GCC diagnostic ignored "-Wchar-subscripts"
 #pragma GCC diagnostic push
-	for( ii = 0; ii < index; ii++)
+	for( ii = 0; ii < index && format[ii] != '\0'; ii++)
 	{
 		offset += sizeof_table[ format[ii] ];
 		offset += offset % alignof_table[ format[ii] ];

@@ -11,8 +11,12 @@ default:
 	@printf '\e[1;34mmake static - create a static object file\n'
 	@printf '\e[1;34mmake shared - create a dynamically linked object file\n'
 	@printf '\e[1;34mmake clean  - remove all binaries\e[0;37m\n'
+	@printf '\e[1;34mmake obj    - get a .o file for linking\e[0;37m\n'
 
-.PHONY: clean static shared
+.PHONY: clean static shared obj
+
+obj:
+	$(CC) $(FLAGS) $(SRC) -c -o $(addprefix lib/, $(OBJ))
 
 static: lib
 	$(CC) $(FLAGS) $(SRC) -c -o $(OBJ)
