@@ -16,7 +16,7 @@ default:
 .PHONY: clean static shared obj test
 
 test:
-	$(CC) $(FLAGS) $(SRC)
+	$(CC) $(FLAGS) $(SRC) src/tests.c -o tests
 
 
 obj:
@@ -31,6 +31,8 @@ shared: lib
 	$(CC) $(FLAGS) $(SRC) -c -o $(OBJ)
 	gcc -shared $(FLAGS) $(OBJ) -o lib/libvoid_pack.so
 	rm $(OBJ)
+lib:
+	mkdir lib
 
 clean:
 	rm -f $(OBJ) ./a.out ./lib/*

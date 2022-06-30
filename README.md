@@ -49,15 +49,3 @@ void_unpack(data, &x, &y);
 free(data);
 ```
 ``void_unpack`` doesn't free the memory located at ``data``, this is to make it a little more flexible to use.
-
-If you only want a single variable from your packed data, you can use ``void_unpack_var(void *data, size_t index)``. <br>
-This function returns the <b>address</b> of the index'th variable in the data (starting at 0). It's recommended to use ``void_unpack`` over this function, as it goes through the data once when accessing multiple variables.
-Usage of this function may look like the following:
-```c
-int x = 1, y = 3;
-void *data = void_pack("ii", x, y);
-...
-int z;
-z = *(int*)void_unpack_var(data, 0); /*z is set to 1*/
-z = *(int*)void_unpack_var(data, 1); /*z is set to 3*/
-```

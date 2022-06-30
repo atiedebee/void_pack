@@ -1,21 +1,24 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdalign.h>
 
 #include "void_pack.h"
 
 #pragma GCC diagnostic ignored "-Wpointer-arith"
 #pragma GCC diagnostic push
 
-void *void_unpack_var(void *buff, size_t index)
+__attribute__((deprecated))
+void *void_unpack_var(void *buff, size_t index) 
 {
 	register size_t ii;
-	size_t offset = 0;
+	size_t offset = 0, returnval = 0;
 	char *format;
 	size_t sizeof_table[256] = {0};
 	size_t alignof_table[256] = {0};
-	
+	/*
+	 FIXME
+	 This function doesn't work at all (yet)
+	 */
 	sizeof_table['c'] = 		sizeof(char);
 	sizeof_table['s'] = 		sizeof(short);
 	sizeof_table['i'] = 		sizeof(int);
@@ -26,14 +29,14 @@ void *void_unpack_var(void *buff, size_t index)
 	sizeof_table['p'] =			sizeof(void*);
 	
 	
-	alignof_table['c'] = 		alignof(char);
-	alignof_table['s'] = 		alignof(short);
-	alignof_table['i'] = 		alignof(int);
-	alignof_table['l'] = 		alignof(long);
-	alignof_table['f'] = 		alignof(double);
-	alignof_table['d'] = 		alignof(double);
-	alignof_table['D'] = 		alignof(long double);
-	alignof_table['p'] =		alignof(void*);
+	alignof_table['c'] = 		_Alignof(char);
+	alignof_table['s'] = 		_Alignof(short);
+	alignof_table['i'] = 		_Alignof(int);
+	alignof_table['l'] = 		_Alignof(long);
+	alignof_table['f'] = 		_Alignof(double);
+	alignof_table['d'] = 		_Alignof(double);
+	alignof_table['D'] = 		_Alignof(long double);
+	alignof_table['p'] =		_Alignof(void*);
 	
 	if( buff == NULL )
 	{
@@ -51,11 +54,12 @@ void *void_unpack_var(void *buff, size_t index)
 #pragma GCC diagnostic push
 	for( ii = 0; ii < index && format[ii] != '\0'; ii++)
 	{
-		offset += sizeof_table[ format[ii] ];
 		offset += offset % alignof_table[ format[ii] ];
+		returnval = offset;
+		offset += sizeof_table[ format[ii] ];
 	}
 	
-	return buff + offset;
+	return buff + returnval;
 #pragma GCC diagnostic pop
 }
 
@@ -88,43 +92,43 @@ void *void_pack(const char *format, ...)
 		switch( format[ii] )
 		{
 			case 'c':
+				offset += ((size_t)buff+offset)%_Alignof(char);
 				*(char*)(buff + offset) = va_arg(list, int);
 				offset += sizeof(char);
-				offset += offset%alignof(char);
 				break;
 			case 's':
+				offset += ((size_t)buff+offset)%_Alignof(short);
 				*(short*)(buff + offset) = va_arg(list, int);
 				offset += sizeof(short);
-				offset += offset%alignof(short);
 				break;
 			case 'i':
+				offset += ((size_t)buff+offset)%_Alignof(int);
 				*(int*)(buff + offset) = va_arg(list, int);
 				offset += sizeof(int);
-				offset += offset%alignof(int);
 				break;
 			case 'l':
+				offset += ((size_t)buff+offset)%_Alignof(long);
 				*(long*)(buff + offset) = va_arg(list, long);
 				offset += sizeof(long);
-				offset += offset%alignof(long);
 				break;
 				
 			case 'f':
 			case 'd':
+				offset += ((size_t)buff+offset)%_Alignof(double);
 				*(double*)(buff + offset) = va_arg(list, double);
 				offset += sizeof(double);
-				offset += offset%alignof(double);
 				break;
 			case 'D':
+				offset += ((size_t)buff+offset)%_Alignof(long double);
 				*(long double*)(buff + offset) = va_arg(list, long double);
 				offset += sizeof(long double);
-				offset += offset%alignof(long double);
 				break;
 				
 			case 'p':
 			default:
+				offset += ((size_t)buff+offset)%_Alignof(void*);
 				*(void**)(buff + offset) = va_arg(list, void*);
 				offset += sizeof(void*);
-				offset += offset%alignof(void*);
 				break;
 		}
 	}
@@ -163,43 +167,43 @@ int void_unpack(void *buff, ...)
 		switch( format[ii] )
 		{
 			case 'c':
+				offset += ((size_t)buff+offset)%_Alignof(char);
 				*(char*)temp = *(char*)(buff + offset);
 				offset += sizeof(char);
-				offset += offset%alignof(char);
 				break;
 			case 's':
+				offset += ((size_t)buff+offset)%_Alignof(short);
 				*(short*)temp = *(short*)(buff + offset);
 				offset += sizeof(short);
-				offset += offset%alignof(short);
 				break;
 			case 'i':
+				offset += ((size_t)buff+offset)%_Alignof(int);
 				*(int*)temp = *(int*)(buff + offset);
 				offset += sizeof(int);
-				offset += offset%alignof(int);
 				break;
 			case 'l':
+				offset += ((size_t)buff+offset)%_Alignof(long);
 				*(long*)temp = *(long*)(buff + offset);
 				offset += sizeof(long);
-				offset += offset%alignof(long);
 				break;
 				
 			case 'f':
 			case 'd':
+				offset += ((size_t)buff+offset)%_Alignof(double);
 				*(double*)temp = *(double*)(buff + offset);
 				offset += sizeof(double);
-				offset += offset%alignof(double);
 				break;
 			case 'D':
+				offset += ((size_t)buff+offset)%_Alignof(long double);
 				*(long double*)temp = *(long double*)(buff + offset);
 				offset += sizeof(long double);
-				offset += offset%alignof(long double);
 				break;
 				
 			case 'p':
 			default:
+				offset += ((size_t)buff+offset)%_Alignof(void*);
 				*(void**)temp = *(void**)(buff + offset);
 				offset += sizeof(void*);
-				offset += offset%alignof(void*);
 				break;
 		}
 	}
