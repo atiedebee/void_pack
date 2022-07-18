@@ -35,4 +35,4 @@ lib:
 	mkdir lib
 
 clean:
-	rm -f $(OBJ) ./a.out ./lib/*
+	rm -f $(OBJ) ./a.out ./lib/* ./tests
