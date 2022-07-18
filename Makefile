@@ -16,7 +16,7 @@ default:
 .PHONY: clean static shared obj test
 
 test:
-	$(CC) $(FLAGS) $(SRC) src/tests.c -o tests
+	$(CC) $(FLAGS) $(SRC) -O0 -g src/tests.c -o tests
 
 
 obj:

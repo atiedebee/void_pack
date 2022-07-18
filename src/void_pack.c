@@ -1,66 +1,67 @@
+#include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "void_pack.h"
 
-#pragma GCC diagnostic ignored "-Wpointer-arith"
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpointer-arith"
 
-__attribute__((deprecated))
+// __attribute__((deprecated))
 void *void_unpack_var(void *buff, size_t index) 
 {
 	register size_t ii;
-	size_t offset = 0, returnval = 0;
 	char *format;
-	size_t sizeof_table[256] = {0};
-	size_t alignof_table[256] = {0};
+	uintptr_t var, returnval;
+	size_t sizeof_table[256] = {
+		['c'] = sizeof(char),
+		['s'] = sizeof(short),
+		['i'] = sizeof(int),
+		['l'] = sizeof(long),
+		['f'] = sizeof(double),
+		['d'] = sizeof(double),
+		['D'] = sizeof(long double),
+		['p'] =	sizeof(void*)
+	};
+	size_t alignof_table[256] = {
+		['c'] = _Alignof(char),
+		['s'] = _Alignof(short),
+		['i'] = _Alignof(int),
+		['l'] = _Alignof(long),
+		['f'] = _Alignof(double),
+		['d'] = _Alignof(double),
+		['D'] = _Alignof(long double),
+		['p'] =	_Alignof(void*)
+	};
 	/*
 	 FIXME
 	 This function doesn't work at all (yet)
 	 */
-	sizeof_table['c'] = 		sizeof(char);
-	sizeof_table['s'] = 		sizeof(short);
-	sizeof_table['i'] = 		sizeof(int);
-	sizeof_table['l'] = 		sizeof(long);
-	sizeof_table['f'] = 		sizeof(double);
-	sizeof_table['d'] = 		sizeof(double);
-	sizeof_table['D'] = 		sizeof(long double);
-	sizeof_table['p'] =			sizeof(void*);
-	
-	
-	alignof_table['c'] = 		_Alignof(char);
-	alignof_table['s'] = 		_Alignof(short);
-	alignof_table['i'] = 		_Alignof(int);
-	alignof_table['l'] = 		_Alignof(long);
-	alignof_table['f'] = 		_Alignof(double);
-	alignof_table['d'] = 		_Alignof(double);
-	alignof_table['D'] = 		_Alignof(long double);
-	alignof_table['p'] =		_Alignof(void*);
-	
-	if( buff == NULL )
+	if( buff == NULL || index < 1 )
 	{
 		return NULL;
 	}
 	
 	format = (char*)buff;
-	while( *(char*)buff != '\0')
-	{
-		buff += sizeof(char);
-	}
-	buff += sizeof(char);
+	for( ii = 0; *(char*)(buff+ii) != '\0'; ii++ )
+		;
+	var = (uintptr_t)buff + ii + 1;
 
-#pragma GCC diagnostic ignored "-Wchar-subscripts"
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wchar-subscripts"
+	returnval = var;
 	for( ii = 0; ii < index && format[ii] != '\0'; ii++)
 	{
-		offset += offset % alignof_table[ format[ii] ];
-		returnval = offset;
-		offset += sizeof_table[ format[ii] ];
+// 		printf("alignof: %ld\nsizeof: %ld\n", alignof_table[ format[ii] ], sizeof_table[ format[ii] ]);
+		var += (size_t)var % alignof_table[ format[ii] ];
+		returnval = var;
+// 		printf("%d\n", *(int*)var);
+		var += sizeof_table[ format[ii] ];
 	}
-	
-	return buff + returnval;
 #pragma GCC diagnostic pop
+	return (void*)returnval;
 }
 
 
@@ -125,11 +126,12 @@ void *void_pack(const char *format, ...)
 				break;
 				
 			case 'p':
-			default:
 				offset += ((size_t)buff+offset)%_Alignof(void*);
 				*(void**)(buff + offset) = va_arg(list, void*);
 				offset += sizeof(void*);
 				break;
+			default:
+				return NULL;
 		}
 	}
 	

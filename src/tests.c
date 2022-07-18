@@ -49,16 +49,46 @@ void test3()/*test for packing variables with different alignments*/
 	
 }
 
+void test4()/* void_unpack_var */
+{
+	void *data = void_pack("ii", 5, 3);
+	int a, b;
+	
+	a = *(int*)void_unpack_var(data, 1);
+	b = *(int*)void_unpack_var(data, 2);
+	assert(a == 5);
+	assert(b == 3);
+}
+
+
+void test5()/* void_unpack_var, but more complicated */
+{
+	void *data = void_pack("cDic", 'a', 2.0l, 4, 'b');
+	char c1, c2;
+	long double ld;
+	int i;
+	
+	void_unpack(data, &c1, &ld, &i, &c2);
+	c1 = *(char*)void_unpack_var(data, 1);
+	ld = *(long double*)void_unpack_var(data, 2);
+	i = *(int*)void_unpack_var(data, 3);
+	c2 = *(char*)void_unpack_var(data, 4);
+	
+	assert(c1 == 'a');
+	assert(c2 == 'b');
+	assert(ld == 2.0l);
+	assert(i == 4);
+}
 
 int main(void)
 {
 	void (*tests[])() = {
-		test1, test2, test3
+		test1, test2, test3, test4, test5
 	};
 	unsigned long i;
 	
 	for( i = 0; i < sizeof(tests)/sizeof(tests[0]); i++ ){
-		printf("Test nr %ld\n", i);
+		printf("Test nr %ld\n", i+1);
 		tests[i]();
 	}
 	printf("All tests succesful\n");
