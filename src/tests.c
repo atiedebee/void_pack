@@ -1,6 +1,7 @@
 #include "void_pack.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 
 void test1()/*simple test for packing multiple numbers*/
@@ -14,7 +15,7 @@ void test1()/*simple test for packing multiple numbers*/
 	for( i = 0; i < 10; i++ ){
 		assert(arr[i] == i);
 	}
-	
+	free(data);
 }
 
 void test2()/*test for packing variables of different sizes*/
@@ -31,6 +32,7 @@ void test2()/*test for packing variables of different sizes*/
 	assert(shorts[1] == 3);
 	assert(chars[2] == 4);	
 	assert(shorts[2] == 5);
+	free(data);
 }
 
 
@@ -47,6 +49,7 @@ void test3()/*test for packing variables with different alignments*/
 	assert(ld == 2.0l);
 	assert(i == 4);
 	
+	free(data);
 }
 
 void test4()/* void_unpack_var */
@@ -58,6 +61,7 @@ void test4()/* void_unpack_var */
 	b = *(int*)void_unpack_var(data, 2);
 	assert(a == 5);
 	assert(b == 3);
+	free(data);
 }
 
 
@@ -78,12 +82,60 @@ void test5()/* void_unpack_var, but more complicated */
 	assert(c2 == 'b');
 	assert(ld == 2.0l);
 	assert(i == 4);
+	free(data);
 }
+
+
+void test6()/* void_unpack_var, modifying data*/
+{
+	void *data = void_pack("cDic", 'a', 2.0l, 4, 'b');
+	char c1, c2;
+	long double ld;
+	int i;
+	long double *ld_p;
+	
+	void_unpack(data, &c1, &ld, &i, &c2);
+	c1 = *(char*)void_unpack_var(data, 1);
+	ld_p = (long double*)void_unpack_var(data, 2);
+	i = *(int*)void_unpack_var(data, 3);
+	c2 = *(char*)void_unpack_var(data, 4);
+	
+	assert(c1 == 'a');
+	assert(c2 == 'b');
+	assert(*ld_p == 2.0l);
+	assert(i == 4);
+	
+	*ld_p = 1.0l;
+	ld = *(long double*)void_unpack_var(data, 2);
+	assert(ld == 1.0l);
+	free(data);
+}
+
+void test7()
+{
+	void* data = void_pack("ij", 1, 2);
+	assert(data == NULL);
+	int *x = void_unpack_var(data, 1);
+	assert(x == NULL);
+}
+
+void test8()
+{
+	void* data = void_pack("ii", 1, 2);
+	assert( data != NULL );
+	int *x = void_unpack_var(data, -1);
+	assert(x == NULL);
+	x = void_unpack_var(data, 3);
+	assert(x == NULL);
+	
+	free(data);
+}
+
 
 int main(void)
 {
 	void (*tests[])() = {
-		test1, test2, test3, test4, test5
+		test1, test2, test3, test4, test5, test6, test7, test8
 	};
 	unsigned long i;
 	

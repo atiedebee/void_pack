@@ -34,18 +34,25 @@ void *void_unpack_var(void *buff, size_t index)
 		['D'] = _Alignof(long double),
 		['p'] =	_Alignof(void*)
 	};
-	/*
-	 FIXME
-	 This function doesn't work at all (yet)
-	 */
-	if( buff == NULL || index < 1 )
-	{
+	
+	if( buff == NULL || index < 1 ){
+#ifdef DEBUG
+		fprintf(stderr, "[%s] invalid arguments: (%s)\n", __func__, buff == NULL?"buff == NULL":"index < 1");
+#endif
 		return NULL;
 	}
-	
+
 	format = (char*)buff;
 	for( ii = 0; *(char*)(buff+ii) != '\0'; ii++ )
 		;
+	
+	if( index > ii ){
+#ifdef DEBUG
+		fprintf(stderr, "[%s] index out of bounds (accessing element %ld/%ld)\n", __func__, index, ii);
+#endif
+		return NULL;
+	}
+	
 	var = (uintptr_t)buff + ii + 1;
 
 #pragma GCC diagnostic push
@@ -128,6 +135,10 @@ void *void_pack(const char *format, ...)
 				offset += sizeof(void*);
 				break;
 			default:
+#ifdef DEBUG
+				fprintf(stderr, "[%s] received unrecognised type specifier '%c' in format \"%s\"\n", __func__, format[ii], format);
+#endif
+				free(buff);
 				return NULL;
 		}
 	}

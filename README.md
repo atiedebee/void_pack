@@ -11,7 +11,7 @@ If you're going to use the library as a shared object file, use ``make shared``.
 
 ## Usage
 ### packing
-Use ``void_pack(const char* format, ...);`` to pack variables into a ``void*``. <br>
+Use ``void* void_pack(const char* format, ...);`` to pack variables into a ``void*``. <br>
 ``format`` is a string of characters that shows the type of variables being packed. Your options are:
 
 | character | type |
@@ -35,7 +35,7 @@ void* packed_data = void_pack("ifp", x, y, pointer);
 ```
 
 ### unpacking
-For unpacking the data you use ``void_unpack(void *data, ...);``. <br>
+For unpacking the data you use ``int void_unpack(void \*data, ...);``. <br>
 You don't need to add a format string to unpack variables, as this is stored in the pointer retrieved from ``void_pack``.
 
 ``void_unpack`` requires you to pass pointers of the types you want. Usage is as shown:
@@ -49,3 +49,16 @@ void_unpack(data, &x, &y);
 free(data);
 ```
 ``void_unpack`` doesn't free the memory located at ``data``, this is to make it a little more flexible to use.
+
+### modifying data or accessing a single element
+It's possible to get the address of the n'th variable stored in a void* (starting at 1). This can be done with ``void* void_unpack_var(void *data, size_t index);``. <br>
+I only recommend using this function if you're very carefull, since it leaves a lot of possibilities for human error (just like the rest of the library, but especially this one). <br>
+Some simple usage of this function may look like the following:
+```c
+void *data = void_pack("ii", 55, 3);
+...
+int *x = (int*)void_unpack_var(data, 1); //returns the address of the first variable, with value 55
+*x = 23;
+int y = *(int*)void_unpack_var(data, 1); // y == 23
+int z = *(int*)void_unpack_var(data, 2); // z == 3
+```
