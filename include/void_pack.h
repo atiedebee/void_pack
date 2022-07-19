@@ -5,7 +5,6 @@
 
 void *void_pack(const char *format, ...);
 int void_unpack(void *buff, ...);
-// __attribute__((deprecated))
 void *void_unpack_var(void *buff, size_t index);
 
 #endif

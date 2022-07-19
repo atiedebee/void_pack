@@ -18,7 +18,6 @@ default:
 test:
 	$(CC) $(FLAGS) $(SRC) -O0 -g src/tests.c -o tests
 
-
 obj:
 	$(CC) $(FLAGS) $(SRC) -c -o $(addprefix lib/, $(OBJ))
 

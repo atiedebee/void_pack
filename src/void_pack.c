@@ -9,7 +9,6 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpointer-arith"
 
-// __attribute__((deprecated))
 void *void_unpack_var(void *buff, size_t index) 
 {
 	register size_t ii;
@@ -54,10 +53,8 @@ void *void_unpack_var(void *buff, size_t index)
 	returnval = var;
 	for( ii = 0; ii < index && format[ii] != '\0'; ii++)
 	{
-// 		printf("alignof: %ld\nsizeof: %ld\n", alignof_table[ format[ii] ], sizeof_table[ format[ii] ]);
 		var += (size_t)var % alignof_table[ format[ii] ];
 		returnval = var;
-// 		printf("%d\n", *(int*)var);
 		var += sizeof_table[ format[ii] ];
 	}
 #pragma GCC diagnostic pop
