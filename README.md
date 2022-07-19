@@ -62,3 +62,4 @@ int *x = (int*)void_unpack_var(data, 1); //returns the address of the first vari
 int y = *(int*)void_unpack_var(data, 1); // y == 23
 int z = *(int*)void_unpack_var(data, 2); // z == 3
 ```
+``void_unpack_var`` returns NULL on failure. Compile the executable with the -DDEBUG flag to catch runtime errors more easily (information will be printed to stderr)
