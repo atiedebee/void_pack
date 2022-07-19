@@ -127,6 +127,8 @@ void test8()
 	assert(x == NULL);
 	x = void_unpack_var(data, 3);
 	assert(x == NULL);
+	x = void_unpack_var(data, 0);
+	assert(x == NULL);
 	
 	free(data);
 }

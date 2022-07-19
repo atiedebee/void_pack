@@ -8,8 +8,13 @@ FLAGS += -I include/
 
 default: static shared
 
-.PHONY: clean static shared obj test
+.PHONY: debug clean static shared obj test all
 
+debug:
+	$(eval FLAGS += -DDEBUG)
+
+all: static shared obj test
+	
 test:
 	$(CC) $(FLAGS) $(SRC) src/tests.c -DDEBUG
 

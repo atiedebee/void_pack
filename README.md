@@ -7,7 +7,9 @@ library for packing variables into a void* pointer.
 git clone https://github.com/atiedebee/void_pack.git
 cd void_pack
 ```
-If you're going to use the library as a shared object file, use ``make shared``. For statically linking use ``make static``
+If you're going to use the library as a shared object file, use ``make shared``. For statically linking use ``make static``<br>
+Or just use ``make`` for both.<br>
+Add ``debug`` before your target to compile with ``-DDEBUG`` which makes the library to print error messages to stderr. For example: ``make debug shared``
 
 ## Usage
 ### packing

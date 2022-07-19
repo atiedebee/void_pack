@@ -9,7 +9,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpointer-arith"
 
-void *void_unpack_var(void *buff, size_t index) 
+void *void_unpack_var(const void *buff, size_t index) 
 {
 	register size_t ii;
 	char *format;
@@ -149,7 +149,7 @@ void *void_pack(const char *format, ...)
 }
 
 
-int void_unpack(void *buff, ...)
+int void_unpack(const void *buff, ...)
 {
 	va_list list;
 	char format[256] = {0};
