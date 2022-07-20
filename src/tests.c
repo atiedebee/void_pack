@@ -133,11 +133,32 @@ void test8()
 	free(data);
 }
 
+void test9()/*pre-allocation*/
+{
+	void *data;
+	int x, y, z;
+	size_t size1, size2;
+	
+	size1 = void_pack_size("iii");
+	data = malloc(size1);
+	if( !data ){
+		printf("malloc failure\n");
+		return;
+	}
+	size2 = void_pack_static("iii", data, 1, 2, 3);
+	
+	void_unpack(data, &x, &y, &z);
+	assert(x == 1);
+	assert(y == 2);
+	assert(z == 3);
+	assert(size1 == size2);
+	free(data);
+}
 
 int main(void)
 {
 	void (*tests[])() = {
-		test1, test2, test3, test4, test5, test6, test7, test8
+		test1, test2, test3, test4, test5, test6, test7, test8, test9
 	};
 	unsigned long i;
 	

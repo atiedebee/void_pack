@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <limits.h>
 
 #include "void_pack.h"
 
@@ -11,33 +12,58 @@
 
 #ifndef VOID_PACK_ALLOCATOR
 #define VOID_PACK_ALLOCATOR malloc
+#else
+void* VOID_PACK_ALLOCATOR(size_t);
 #endif
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wchar-subscripts"
+
+
+const size_t sizeof_table[CHAR_MAX] = {
+	['c'] = sizeof(char),
+	['s'] = sizeof(short),
+	['i'] = sizeof(int),
+	['l'] = sizeof(long),
+	['f'] = sizeof(double),
+	['d'] = sizeof(double),
+	['D'] = sizeof(long double),
+	['p'] =	sizeof(void*)
+};
+const size_t alignof_table[CHAR_MAX] = {
+	['c'] = _Alignof(char),
+	['s'] = _Alignof(short),
+	['i'] = _Alignof(int),
+	['l'] = _Alignof(long),
+	['f'] = _Alignof(double),
+	['d'] = _Alignof(double),
+	['D'] = _Alignof(long double),
+	['p'] =	_Alignof(void*)
+};
+	
+size_t void_pack_size(const char *format)
+{
+	if( format == NULL )
+		return 0;
+	
+	size_t formatlen = strlen(format);
+	size_t void_size = formatlen + 1;
+	
+	for( size_t i = 0; i < formatlen; i++ ){
+		void_size += alignof_table[format[i]] - void_size%alignof_table[format[i]];
+		void_size += sizeof_table[format[i]];
+	}
+	
+	return void_size;
+}
+
+
 
 void *void_unpack_var(const void *buff, size_t index) 
 {
 	register uintptr_t ii;
 	char *format;
 	uintptr_t var, returnval;
-	size_t sizeof_table[256] = {
-		['c'] = sizeof(char),
-		['s'] = sizeof(short),
-		['i'] = sizeof(int),
-		['l'] = sizeof(long),
-		['f'] = sizeof(double),
-		['d'] = sizeof(double),
-		['D'] = sizeof(long double),
-		['p'] =	sizeof(void*)
-	};
-	size_t alignof_table[256] = {
-		['c'] = _Alignof(char),
-		['s'] = _Alignof(short),
-		['i'] = _Alignof(int),
-		['l'] = _Alignof(long),
-		['f'] = _Alignof(double),
-		['d'] = _Alignof(double),
-		['D'] = _Alignof(long double),
-		['p'] =	_Alignof(void*)
-	};
 	
 	if( buff == NULL || index < 1 ){
 #ifdef DEBUG
@@ -58,9 +84,6 @@ void *void_unpack_var(const void *buff, size_t index)
 	}
 	
 	var = (uintptr_t)buff + ii + 1;
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wchar-subscripts"
 	returnval = var;
 	for( ii = 0; ii < index && format[ii] != '\0'; ii++)
 	{
@@ -72,30 +95,17 @@ void *void_unpack_var(const void *buff, size_t index)
 	return (void*)returnval;
 }
 
-
-void *void_pack(const char *format, ...)
+static 
+size_t fill_void_(const char* format, void* buff, va_list list)
 {
-	va_list list;
-	void *buff = NULL;
-	register uintptr_t ii, offset, format_len;
-	
-	
-	format_len = strlen(format);
-	buff = VOID_PACK_ALLOCATOR( ((format_len + 1) * sizeof(char)) + (format_len * 16) );
-	if( !buff )
-	{
-		return NULL;
-	}
+	register size_t ii, offset;
 	
 	for( ii = 0; format[ii] != '\0'; ii++)
-	{
 		*(char*)(buff + ii) = format[ii];
-	}
 	*(char*)(buff + ii) = '\0';
 	offset = ii+1;
 	
 	/*7 different types*/
-	va_start(list, format);	
 	for( ii = 0; format[ii] != '\0'; ii++ )
 	{
 		switch( format[ii] )
@@ -142,18 +152,56 @@ void *void_pack(const char *format, ...)
 #ifdef DEBUG
 				fprintf(stderr, "[%s] received unrecognised type specifier '%c' in format \"%s\"\n", __func__, format[ii], format);
 #endif
-				free(buff);
-				return NULL;
+				return 0;
 		}
 	}
 	
+	return offset; /*offset has the current size*/
+}
+
+
+size_t void_pack_static(const char *format, void *restrict buff, ...)
+{
+	va_list list;
+	size_t size;
+	
+	if( !buff || !format )
+		return 0;
+	
+	va_start(list, buff);	
+	size = fill_void_(format, buff, list);
+	va_end(list);
+
+	return size;
+}
+
+
+void *void_pack(const char *format, ...)
+{
+	va_list list;
+	void *buff = NULL;
+	uintptr_t format_len;
+	
+	
+	format_len = strlen(format);
+	buff = VOID_PACK_ALLOCATOR( ((format_len + 1) * sizeof(char)) + (format_len * 16) );
+	if( !buff )
+		return NULL;
+	
+	
+	va_start(list, format);	
+	if( fill_void_(format, buff, list) == 0 ){
+		free(buff);
+		va_end(list);
+		return NULL;
+	}
 	va_end(list);
 
 	return buff;
 }
 
 
-int void_unpack(const void *buff, ...)
+int void_unpack(const void *restrict buff, ...)
 {
 	va_list list;
 	char format[256] = {0};

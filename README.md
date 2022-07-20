@@ -65,3 +65,10 @@ int y = *(int*)void_unpack_var(data, 1); // y == 23
 int z = *(int*)void_unpack_var(data, 2); // z == 3
 ```
 ``void_unpack_var`` returns NULL on failure. Compile the executable with the -DDEBUG flag to catch runtime errors more easily (information will be printed to stderr)
+
+### using a pre-allocated buffer
+``size_t void_pack_size(const char* format);`` will return the size in bytes required to store the given format + values.<br>
+```c size_t void_pack_static(const char* format, void* buff, ...);``` behaves the same as ``void_pack``, except that it writes into an existing buffer. It will return the amount of bytes written, or 0 on an error.
+
+### using a custom allocator
+Before including ``void_pack.h``, define ``VOID_PACK_ALLOCATOR`` to be the name of your custom allocator. This needs to return a pointer and take a size as only parameter.
