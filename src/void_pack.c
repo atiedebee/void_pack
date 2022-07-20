@@ -9,6 +9,10 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpointer-arith"
 
+#ifndef VOID_PACK_ALLOCATOR
+#define VOID_PACK_ALLOCATOR malloc
+#endif
+
 void *void_unpack_var(const void *buff, size_t index) 
 {
 	register uintptr_t ii;
@@ -77,7 +81,7 @@ void *void_pack(const char *format, ...)
 	
 	
 	format_len = strlen(format);
-	buff = malloc( ((format_len + 1) * sizeof(char)) + (format_len * 16) );
+	buff = VOID_PACK_ALLOCATOR( ((format_len + 1) * sizeof(char)) + (format_len * 16) );
 	if( !buff )
 	{
 		return NULL;
@@ -141,7 +145,6 @@ void *void_pack(const char *format, ...)
 				free(buff);
 				return NULL;
 		}
-		printf("pos: %p\n", buff+offset);
 	}
 	
 	va_end(list);
