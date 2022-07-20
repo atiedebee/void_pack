@@ -11,7 +11,7 @@
 
 void *void_unpack_var(const void *buff, size_t index) 
 {
-	register size_t ii;
+	register uintptr_t ii;
 	char *format;
 	uintptr_t var, returnval;
 	size_t sizeof_table[256] = {
@@ -60,7 +60,7 @@ void *void_unpack_var(const void *buff, size_t index)
 	returnval = var;
 	for( ii = 0; ii < index && format[ii] != '\0'; ii++)
 	{
-		var += (size_t)var % alignof_table[ format[ii] ];
+		var += alignof_table[ format[ii] ] - (uintptr_t)var % alignof_table[ format[ii] ];
 		returnval = var;
 		var += sizeof_table[ format[ii] ];
 	}
@@ -73,7 +73,7 @@ void *void_pack(const char *format, ...)
 {
 	va_list list;
 	void *buff = NULL;
-	register size_t ii, offset, format_len;
+	register uintptr_t ii, offset, format_len;
 	
 	
 	format_len = strlen(format);
@@ -97,40 +97,40 @@ void *void_pack(const char *format, ...)
 		switch( format[ii] )
 		{
 			case 'c':
-				offset += ((size_t)buff+offset)%_Alignof(char);
+				offset += _Alignof(char) - ((uintptr_t)buff+offset)%_Alignof(char);
 				*(char*)(buff + offset) = va_arg(list, int);
 				offset += sizeof(char);
 				break;
 			case 's':
-				offset += ((size_t)buff+offset)%_Alignof(short);
+				offset += _Alignof(short) - ((uintptr_t)buff+offset)%_Alignof(short);
 				*(short*)(buff + offset) = va_arg(list, int);
 				offset += sizeof(short);
 				break;
 			case 'i':
-				offset += ((size_t)buff+offset)%_Alignof(int);
+				offset += _Alignof(int) - ((uintptr_t)buff+offset)%_Alignof(int);
 				*(int*)(buff + offset) = va_arg(list, int);
 				offset += sizeof(int);
 				break;
 			case 'l':
-				offset += ((size_t)buff+offset)%_Alignof(long);
+				offset += _Alignof(long) - ((uintptr_t)buff+offset)%_Alignof(long);
 				*(long*)(buff + offset) = va_arg(list, long);
 				offset += sizeof(long);
 				break;
 				
 			case 'f':
 			case 'd':
-				offset += ((size_t)buff+offset)%_Alignof(double);
+				offset += _Alignof(double) - ((uintptr_t)buff+offset)%_Alignof(double);
 				*(double*)(buff + offset) = va_arg(list, double);
 				offset += sizeof(double);
 				break;
 			case 'D':
-				offset += ((size_t)buff+offset)%_Alignof(long double);
+				offset += _Alignof(long double) - ((uintptr_t)buff+offset)%_Alignof(long double);
 				*(long double*)(buff + offset) = va_arg(list, long double);
 				offset += sizeof(long double);
 				break;
 				
 			case 'p':
-				offset += ((size_t)buff+offset)%_Alignof(void*);
+				offset += _Alignof(void*) - ((uintptr_t)buff+offset)%_Alignof(void*);
 				*(void**)(buff + offset) = va_arg(list, void*);
 				offset += sizeof(void*);
 				break;
@@ -141,6 +141,7 @@ void *void_pack(const char *format, ...)
 				free(buff);
 				return NULL;
 		}
+		printf("pos: %p\n", buff+offset);
 	}
 	
 	va_end(list);
@@ -153,7 +154,7 @@ int void_unpack(const void *buff, ...)
 {
 	va_list list;
 	char format[256] = {0};
-	register size_t ii, offset;
+	register uintptr_t ii, offset;
 	void *temp;
 	
 	if( !buff )
@@ -177,41 +178,41 @@ int void_unpack(const void *buff, ...)
 		switch( format[ii] )
 		{
 			case 'c':
-				offset += ((size_t)buff+offset)%_Alignof(char);
+				offset += _Alignof(char) - ((uintptr_t)buff+offset)%_Alignof(char);
 				*(char*)temp = *(char*)(buff + offset);
 				offset += sizeof(char);
 				break;
 			case 's':
-				offset += ((size_t)buff+offset)%_Alignof(short);
+				offset += _Alignof(short) - ((uintptr_t)buff+offset)%_Alignof(short);
 				*(short*)temp = *(short*)(buff + offset);
 				offset += sizeof(short);
 				break;
 			case 'i':
-				offset += ((size_t)buff+offset)%_Alignof(int);
+				offset += _Alignof(int) - ((uintptr_t)buff+offset)%_Alignof(int);
 				*(int*)temp = *(int*)(buff + offset);
 				offset += sizeof(int);
 				break;
 			case 'l':
-				offset += ((size_t)buff+offset)%_Alignof(long);
+				offset += _Alignof(long) - ((uintptr_t)buff+offset)%_Alignof(long);
 				*(long*)temp = *(long*)(buff + offset);
 				offset += sizeof(long);
 				break;
 				
 			case 'f':
 			case 'd':
-				offset += ((size_t)buff+offset)%_Alignof(double);
+				offset += _Alignof(double) - ((uintptr_t)buff+offset)%_Alignof(double);
 				*(double*)temp = *(double*)(buff + offset);
 				offset += sizeof(double);
 				break;
 			case 'D':
-				offset += ((size_t)buff+offset)%_Alignof(long double);
+				offset += _Alignof(long double) - ((uintptr_t)buff+offset)%_Alignof(long double);
 				*(long double*)temp = *(long double*)(buff + offset);
 				offset += sizeof(long double);
 				break;
 				
 			case 'p':
 			default:
-				offset += ((size_t)buff+offset)%_Alignof(void*);
+				offset += _Alignof(void*) - ((uintptr_t)buff+offset)%_Alignof(void*);
 				*(void**)temp = *(void**)(buff + offset);
 				offset += sizeof(void*);
 				break;

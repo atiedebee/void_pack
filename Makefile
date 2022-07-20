@@ -16,7 +16,7 @@ debug:
 all: static shared obj test
 	
 test:
-	$(CC) $(FLAGS) $(SRC) src/tests.c -DDEBUG
+	$(CC) $(FLAGS) $(SRC) src/tests.c -DDEBUG -fsanitize=undefined
 
 obj: lib
 	$(CC) $(FLAGS) $(SRC) -c -o $(addprefix lib/, $(OBJ))
